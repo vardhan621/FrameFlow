@@ -385,6 +385,7 @@ export default function useClient(clientId) {
   // ==========================
 
   const downloadGallery = async () => {
+    
     try {
       await downloadGalleryUtil({
         client,
