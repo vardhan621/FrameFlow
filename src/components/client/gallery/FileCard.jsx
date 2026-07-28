@@ -5,6 +5,9 @@ import {
   Eye,
   FileText,
   Image as ImageIcon,
+  Play,
+  Calendar,
+  HardDrive,
 } from "lucide-react";
 
 import {
@@ -44,9 +47,28 @@ export default function FileCard({
 
   const uploadedDate = file?.uploadedAt
     ? new Date(file.uploadedAt).toLocaleDateString()
-    : "";
+    : "Unknown";
 
-  // Preview
+  const fileSize = file?.size
+    ? `${(file.size / (1024 * 1024)).toFixed(2)} MB`
+    : null;
+
+  const fileType = image
+    ? "Image"
+    : video
+    ? "Video"
+    : pdf
+    ? "PDF"
+    : "File";
+
+  const badgeColor = image
+    ? "bg-emerald-500"
+    : video
+    ? "bg-violet-500"
+    : pdf
+    ? "bg-red-500"
+    : "bg-slate-500";
+
   const handlePreview = () => {
     if (!fileUrl) return;
 
@@ -62,22 +84,30 @@ export default function FileCard({
 
   return (
     <div
-      className={`group overflow-hidden rounded-2xl border shadow-lg hover:shadow-2xl transition-all duration-300 ${
+      className={`group overflow-hidden rounded-3xl border transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl ${
         theme === "dark"
           ? "bg-slate-900 border-slate-700"
           : "bg-white border-gray-200"
       }`}
     >
-      {/* Preview Area */}
+      {/* ================= Preview ================= */}
 
       <div
+        onClick={handlePreview}
         className={`relative aspect-square overflow-hidden cursor-pointer ${
           theme === "dark"
             ? "bg-slate-800"
             : "bg-gray-100"
         }`}
-        onClick={handlePreview}
       >
+        {/* File Type Badge */}
+
+        <span
+          className={`absolute left-4 top-4 z-20 rounded-full px-3 py-1 text-xs font-semibold text-white shadow-lg ${badgeColor}`}
+        >
+          {fileType}
+        </span>
+
         {/* Image */}
 
         {image && (
@@ -85,150 +115,245 @@ export default function FileCard({
             src={fileUrl}
             alt={fileName}
             loading="lazy"
-            className="w-full h-full object-cover group-hover:scale-105 transition duration-300"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-110"
           />
         )}
 
         {/* Video */}
 
         {video && (
-          <video
-            src={fileUrl}
-            className="w-full h-full object-cover"
-            muted
-            preload="metadata"
-          />
+          <>
+            <video
+              src={fileUrl}
+              muted
+              preload="metadata"
+              className="h-full w-full object-cover"
+            />
+
+            <div className="absolute inset-0 flex items-center justify-center">
+              <div className="rounded-full bg-black/70 p-5 backdrop-blur">
+                <Play
+                  size={30}
+                  className="fill-white text-white"
+                />
+              </div>
+            </div>
+          </>
         )}
 
         {/* PDF */}
 
         {pdf && (
-          <div className="flex flex-col items-center justify-center h-full">
-            <FileText
-              size={70}
-              className="text-red-500"
-            />
+          <div className="flex h-full flex-col items-center justify-center">
+            <div className="rounded-full bg-red-100 p-6">
+              <FileText
+                size={70}
+                className="text-red-600"
+              />
+            </div>
 
-            <p
-              className={`mt-3 text-sm font-semibold ${
+            <h3
+              className={`mt-5 font-semibold ${
                 theme === "dark"
                   ? "text-white"
                   : "text-gray-900"
               }`}
             >
               PDF Document
-            </p>
+            </h3>
           </div>
         )}
 
         {/* Other Files */}
 
         {!image && !video && !pdf && (
-          <div className="flex flex-col items-center justify-center h-full">
+          <div className="flex h-full flex-col items-center justify-center">
             <ImageIcon
-              size={60}
+              size={70}
               className={
                 theme === "dark"
-                  ? "text-gray-500"
+                  ? "text-slate-500"
                   : "text-gray-400"
               }
             />
 
             <p
-              className={`mt-3 text-sm ${
+              className={`mt-4 ${
                 theme === "dark"
                   ? "text-gray-400"
                   : "text-gray-500"
               }`}
             >
-              No Preview
+              Preview unavailable
             </p>
           </div>
         )}
-
-        {/* Hover Overlay */}
+                {/* ================= Hover Overlay ================= */}
 
         {fileUrl && (
-          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition flex items-center justify-center">
+          <div className="absolute inset-0 flex items-center justify-center gap-4 bg-black/60 opacity-0 backdrop-blur-sm transition-all duration-300 group-hover:opacity-100">
+
+            {/* Preview */}
 
             <button
               onClick={(e) => {
                 e.stopPropagation();
                 handlePreview();
               }}
-              className="bg-white rounded-full p-3 shadow-xl hover:scale-110 transition"
+              className="rounded-full bg-white p-3 text-gray-800 shadow-xl transition-all duration-300 hover:scale-110"
+              title="Preview"
             >
-              <Eye
-                size={20}
-                className="text-gray-800"
-              />
+              <Eye size={20} />
             </button>
 
+            {/* Download */}
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                window.open(getDownloadUrl(fileUrl), "_blank");
+              }}
+              className="rounded-full bg-blue-600 p-3 text-white shadow-xl transition-all duration-300 hover:scale-110 hover:bg-blue-700"
+              title="Download"
+            >
+              <Download size={20} />
+            </button>
+
+            {/* Delete */}
+
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete?.(category, index);
+              }}
+              className="rounded-full bg-red-600 p-3 text-white shadow-xl transition-all duration-300 hover:scale-110 hover:bg-red-700"
+              title="Delete"
+            >
+              <Trash2 size={20} />
+            </button>
           </div>
         )}
       </div>
 
-      {/* Footer */}
+      {/* ================= Footer ================= */}
 
-      <div className="p-4">
+      <div className="space-y-4 p-5">
+        <div>
+          <h3
+            title={fileName}
+            className={`truncate text-base font-bold ${
+              theme === "dark"
+                ? "text-white"
+                : "text-gray-900"
+            }`}
+          >
+            {fileName}
+          </h3>
 
-        <h3
-          title={fileName}
-          className={`font-semibold truncate ${
-            theme === "dark"
-              ? "text-white"
-              : "text-gray-900"
-          }`}
-        >
-          {fileName}
-        </h3>
-
-        {uploadedDate && (
           <p
-            className={`text-xs mt-1 ${
+            className={`mt-1 text-xs ${
               theme === "dark"
                 ? "text-gray-400"
                 : "text-gray-500"
             }`}
           >
-            Uploaded: {uploadedDate}
+            {fileType}
           </p>
-        )}
+        </div>
 
-        <div className="flex justify-between mt-4">
+        <div
+          className={`space-y-2 rounded-2xl p-3 ${
+            theme === "dark"
+              ? "bg-slate-800"
+              : "bg-gray-50"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Calendar
+                size={15}
+                className="text-blue-500"
+              />
 
-          {/* Download */}
+              <span
+                className={`text-xs ${
+                  theme === "dark"
+                    ? "text-gray-400"
+                    : "text-gray-500"
+                }`}
+              >
+                Uploaded
+              </span>
+            </div>
 
+            <span
+              className={`text-xs font-medium ${
+                theme === "dark"
+                  ? "text-white"
+                  : "text-gray-800"
+              }`}
+            >
+              {uploadedDate}
+            </span>
+          </div>
+
+          {fileSize && (
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <HardDrive
+                  size={15}
+                  className="text-green-500"
+                />
+
+                <span
+                  className={`text-xs ${
+                    theme === "dark"
+                      ? "text-gray-400"
+                      : "text-gray-500"
+                  }`}
+                >
+                  Size
+                </span>
+              </div>
+
+              <span
+                className={`text-xs font-medium ${
+                  theme === "dark"
+                    ? "text-white"
+                    : "text-gray-800"
+                }`}
+              >
+                {fileSize}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Bottom Action Buttons */}
+
+        <div className="grid grid-cols-2 gap-3">
           <button
             onClick={(e) => {
               e.stopPropagation();
-
-              window.open(
-                getDownloadUrl(fileUrl),
-                "_blank"
-              );
+              window.open(getDownloadUrl(fileUrl), "_blank");
             }}
-            className="flex items-center gap-2 text-blue-500 hover:text-blue-400 transition"
+            className="flex items-center justify-center gap-2 rounded-xl bg-blue-600 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-blue-700"
           >
-            <Download size={18} />
+            <Download size={17} />
             Download
           </button>
-
-          {/* Delete */}
 
           <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete?.(category, index);
             }}
-            className="flex items-center gap-2 text-red-500 hover:text-red-400 transition"
+            className="flex items-center justify-center gap-2 rounded-xl bg-red-600 py-2.5 text-sm font-semibold text-white transition-all duration-300 hover:bg-red-700"
           >
-            <Trash2 size={18} />
+            <Trash2 size={17} />
             Delete
           </button>
-
         </div>
-
       </div>
     </div>
   );

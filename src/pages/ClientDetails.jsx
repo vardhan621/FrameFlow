@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { ArrowLeft } from "lucide-react";
-import { useNavigate, useParams } from "react-router-dom";
+
+import { useParams } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import useClient from "../hooks/useClient";
 
@@ -11,6 +11,9 @@ import TimelineSection from "../components/client/TimelineSection";
 import ActivitySection from "../components/client/ActivitySection";
 import GallerySection from "../components/client/gallery/GallerySection";
 import InvoiceSection from "../components/invoice/InvoiceSection";
+import ClientHero from "../components/client/ClientHero";
+import ClientStats from "../components/client/ClientStats";
+import WorkflowProgress from "../components/client/WorkflowProgress";
 const tabs = [
   "Overview",
   "Gallery",
@@ -22,7 +25,7 @@ const tabs = [
 ];
 
 export default function ClientDetails() {
-  const navigate = useNavigate();
+  
   const { id } = useParams();
   const { theme } = useTheme();
   const [activeTab, setActiveTab] = useState("Overview");
@@ -44,26 +47,39 @@ export default function ClientDetails() {
   } = useClient(id);
 
   if (loading) {
-    return (
-      <div
-        className={`min-h-screen flex justify-center items-center transition-all duration-300 ${
-          theme === "dark"
-            ? "bg-slate-950"
-            : "bg-gray-100"
-        }`}
-      >
-        <div
-          className={`text-xl font-semibold ${
-            theme === "dark"
-              ? "text-white"
-              : "text-gray-800"
-          }`}
-        >
-          Loading...
+  return (
+    <div
+      className={`min-h-screen ${
+        theme === "dark"
+          ? "bg-slate-950"
+          : "bg-gray-50"
+      }`}
+    >
+      <div className="max-w-[1700px] mx-auto p-6">
+
+        <div className="animate-pulse space-y-6">
+
+          <div className="h-56 rounded-3xl bg-gray-300 dark:bg-slate-800"></div>
+
+          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-5">
+
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="h-32 rounded-3xl bg-gray-300 dark:bg-slate-800"
+              />
+            ))}
+
+          </div>
+
+          <div className="h-48 rounded-3xl bg-gray-300 dark:bg-slate-800"></div>
+
         </div>
+
       </div>
-    );
-  }
+    </div>
+  );
+}
 
   if (!client) {
     return (
@@ -71,7 +87,7 @@ export default function ClientDetails() {
         className={`min-h-screen flex justify-center items-center transition-all duration-300 ${
           theme === "dark"
             ? "bg-slate-950"
-            : "bg-gray-100"
+            : "bg-gray-50"
         }`}
       >
         <div
@@ -92,89 +108,50 @@ export default function ClientDetails() {
       className={`min-h-screen transition-all duration-300 ${
         theme === "dark"
           ? "bg-slate-950"
-          : "bg-gray-100"
+          : "bg-gray-50"
       }`}
     >
 
-      <div className="max-w-7xl mx-auto p-6">
+      <div className="max-w-[1700px] mx-auto p-4 md:p-6">
+        {/* Hero Section */}
 
-        {/* Header */}
+        <ClientHero client={client} />
 
-        <div className="flex flex-wrap justify-between items-center gap-4 mb-8">
+        {/* Statistics */}
 
-          <div className="flex items-center gap-4">
-
-            <button
-              onClick={() => navigate(-1)}
-              className={`p-2 rounded-xl shadow transition-all duration-300 hover:scale-105 ${
-                theme === "dark"
-                  ? "bg-slate-800 border border-slate-700 text-white"
-                  : "bg-white border border-gray-200 text-gray-800"
-              }`}
-            >
-              <ArrowLeft
-                size={20}
-                className={
-                  theme === "dark"
-                    ? "text-white"
-                    : "text-gray-800"
-                }
-              />
-            </button>
-
-            <div>
-              <h1 className={`text-3xl font-bold ${
-                theme === "dark"
-                  ? "text-white"
-                  : "text-gray-900"
-              }`}>
-                {client.clientName}
-              </h1>
-
-              <p className={
-                theme === "dark"
-                  ? "text-gray-400"
-                  : "text-gray-500"
-              }>
-                {client.eventType}
-              </p>
-            </div>
-
-          </div>
-
-          <span
-            className={`px-5 py-2 rounded-full font-semibold ${
-              client.status === "Completed"
-                ? theme === "dark"
-                  ? "bg-green-900/30 text-green-400"
-                  : "bg-green-100 text-green-700"
-                : client.status === "Cancelled"
-                ? theme === "dark"
-                  ? "bg-red-900/30 text-red-400"
-                  : "bg-red-100 text-red-700"
-                : theme === "dark"
-                ? "bg-blue-900/30 text-blue-400"
-                : "bg-blue-100 text-blue-700"
-            }`}
-          >
-            {client.status}
-          </span>
-
+        <div className="mt-8">
+          <ClientStats
+            client={client}
+            paidAmount={paidAmount}
+          />
         </div>
 
+        {/* Workflow Progress */}
+
+        <div className="mt-10 mb-8">
+          <WorkflowProgress
+            client={client}
+          />
+        </div>
         {/* Tabs */}
 
-        <div className="flex gap-3 overflow-x-auto mb-8">
+        <div
+          className={`sticky top-4 z-20 flex gap-3 overflow-x-auto py-4 mt-10 mb-8 backdrop-blur-md ${
+            theme === "dark"
+            ? "bg-slate-950/80"
+            : "bg-gray-50/80"
+          }`}
+        >
 
           {tabs.map((tab) => (
 
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`px-5 py-2 rounded-xl whitespace-nowrap transition-all duration-200
+              className={`px-6 py-3 rounded-2xl whitespace-nowrap transition-all duration-300 hover:-translate-y-1 hover:shadow-lg
                 ${
                   activeTab === tab
-                    ? "bg-blue-600 text-white shadow-lg"
+                    ? "bg-blue-600 text-white shadow-xl ring-2 ring-blue-300/30"
                     : theme === "dark"
                     ? "bg-slate-800 border border-slate-700 text-gray-300 hover:bg-slate-700"
                     : "bg-white border border-gray-200 text-gray-700 hover:bg-gray-50"
@@ -190,66 +167,74 @@ export default function ClientDetails() {
         {/* Overview */}
 
         {activeTab === "Overview" && (
-          <ClientInfoCard
-            client={client}
-            paidAmount={paidAmount}
-          />
+          <div className="animate-fadeIn">
+            <ClientInfoCard
+              client={client}
+              paidAmount={paidAmount}
+            />
+          </div>
         )}
 
         {/* Gallery */}
 
         {activeTab === "Gallery" && (
-          <GallerySection
-            client={client}
-            uploadFiles={uploadFiles}
-            deleteFile={deleteFile}
-            downloadGallery={downloadGallery}
-            downloading={downloading}
-          />
+          <div className="animate-fadeIn">
+            <GallerySection
+              client={client}
+              uploadFiles={uploadFiles}
+              deleteFile={deleteFile}
+              downloadGallery={downloadGallery}
+              downloading={downloading}
+            />
+          </div>
         )}
 
         {/* Workflow */}
 
         {activeTab === "Workflow" && (
-          <WorkflowSection
-            client={client}
-            updateWorkflow={updateWorkflow}
-          />
+          <div className="animate-fadeIn">
+            <WorkflowSection
+              client={client}
+              updateWorkflow={updateWorkflow}
+            />
+          </div>
         )}
 
         {/* Payments */}
 
         {activeTab === "Payments" && (
-          <PaymentSection
-            client={client}
-            payments={payments}
-            paidAmount={paidAmount}
-            addPayment={addPayment}
-            deletePayment={deletePayment}
-          />
+          <div className="animate-fadeIn">
+            <PaymentSection
+              client={client}
+              payments={payments}
+              paidAmount={paidAmount}
+              addPayment={addPayment}
+              deletePayment={deletePayment}
+            />
+          </div>
         )}
 
         {/* Timeline */}
 
         {activeTab === "Timeline" && (
-          <TimelineSection
-            timeline={timeline}
-          />
+          <div className="animate-fadeIn">
+            <TimelineSection timeline={timeline} />
+          </div>
         )}
 
         {/* Activity */}
 
-        {activeTab === "Activity" && (
-          <ActivitySection
-            activities={activities}
-          />
+       {activeTab === "Activity" && (
+          <div className="animate-fadeIn">
+            <ActivitySection activities={activities} />
+          </div>
         )}
         {/* Invoice */}
 
         {activeTab === "Invoice" && (
-          <InvoiceSection
-            client={client}
-          />
+          <div className="animate-fadeIn">
+            <InvoiceSection client={client} />
+          </div>
         )}
 
       </div>
