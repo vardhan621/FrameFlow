@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+.rbc-toolbar button {
+  color: black !important;
+}
+
+.rbc-toolbar button:hover {
+  color: black !important;
+}
+
+.rbc-toolbar button.rbc-active {
+  background: #2563eb !important;
+  color: white !important;
+}
+
+.rbc-off-range-bg {
+  background: #f8fafc !important;
+}
+
