@@ -1,4 +1,4 @@
-import FileCard from "./FileCard";
+import FileCard from "./Filecard";
 
 export default function FileGrid({
     files,
