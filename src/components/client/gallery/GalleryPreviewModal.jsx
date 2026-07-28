@@ -1,3 +1,4 @@
+import API from "../../../services/api";
 import { useEffect, useRef, useState } from "react";
 import { useTheme } from "../../../context/ThemeContext";
 import {
@@ -40,7 +41,7 @@ export default function GalleryPreviewModal({
   const [zoom, setZoom] = useState(1);
 
   const [loading, setLoading] = useState(true);
-
+  const BACKEND_URL = API.defaults.baseURL.replace("/api", "");
   const [position, setPosition] = useState({
     x: 0,
     y: 0,
@@ -228,9 +229,9 @@ export default function GalleryPreviewModal({
     file.path ||
     "";
 
-  const fileUrl = rawUrl.startsWith("/uploads")
-    ? `http://localhost:5000${rawUrl}`
-    : rawUrl;
+ const fileUrl = rawUrl.startsWith("/uploads")
+  ? `${BACKEND_URL}${rawUrl}`
+  : rawUrl;
 
   const image = isImage(fileUrl);
   const video = isVideo(fileUrl);
@@ -876,7 +877,7 @@ export default function GalleryPreviewModal({
                 "";
 
               const thumbUrl = rawThumb.startsWith("/uploads")
-                ? `http://localhost:5000${rawThumb}`
+                ? `${BACKEND_URL}${rawThumb}`
                 : rawThumb;
 
               const thumbImage = isImage(thumbUrl);
